@@ -24,7 +24,7 @@ import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from '../reducers/user';
 //   return axios.post("/api/addpost", data);
 // }
 
-function* loadPosts(action) {
+function* loadPosts() {
 	try {
 		// yield delay(1000);
 		yield put({
