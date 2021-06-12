@@ -1,10 +1,17 @@
+const db = require("./models");
 const express = require("express");
+
 const app = express();
-const port = 3000;
+const port = 4000;
 
 const postRouter = require("./routes/post");
-const postsRouter = require("./routes/posts");
-const userRouter = require("./routes/user");
+// const postsRouter = require("./routes/posts");
+// const userRouter = require("./routes/user");
+
+db.sequelize
+  .sync()
+  .then(() => console.log("db 연결됨"))
+  .catch(console.err);
 
 app.get("/", (req, res) => {
   res.send("hi");

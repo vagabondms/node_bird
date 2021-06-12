@@ -31,5 +31,5 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
     }
   );
-  return comment;
+  return Comment;
 };
