@@ -1,5 +1,6 @@
 // import axios from "axios";
-import { all, fork, delay, put, takeLatest } from 'redux-saga/effects';
+import axios from 'axios';
+import { all, fork, delay, put, takeLatest, call } from 'redux-saga/effects';
 
 import {
 	FOLLOW_FAILURE,
@@ -87,19 +88,23 @@ function* logOut() {
 // function signUpAPI() {
 //   return axios.post("/api/logout:")
 // }
-
-function* signUp() {
+function signUpAPI(payload) {
+	return axios.post('http://localhost:4000/user', payload);
+}
+function* signUp(action) {
 	try {
-		yield delay(1000);
-		// const result = yield call(logOutAPI);
+		console.log(action);
+		const result = yield call(signUpAPI, action.payload);
+
 		yield put({
 			type: SIGN_UP_SUCCESS,
 		});
 	} catch (err) {
-		yield put({
-			type: SIGN_UP_FAILURE,
-			error: err.response.data,
-		});
+		console.log(err);
+		// yield put({
+		// 	type: SIGN_UP_FAILURE,
+		// 	error: err.response.data,
+		// });
 	}
 }
 
