@@ -52,12 +52,14 @@ function* unfollow(action) {
 	}
 }
 
+function logInAPI() {
+	return axios.post('/user/login');
+}
+
 function* logIn(action) {
 	try {
-		// const result = yield call(logInAPI, action.data);
-		yield delay(1000);
-
-		yield put({ type: LOG_IN_SUCCESS, payload: action.data });
+		const result = yield call(logInAPI, action.data);
+		yield put({ type: LOG_IN_SUCCESS, payload: result.data });
 	} catch (err) {
 		yield put({
 			type: LOG_IN_FAILURE,
@@ -85,26 +87,21 @@ function* logOut() {
 	}
 }
 
-// function signUpAPI() {
-//   return axios.post("/api/logout:")
-// }
 function signUpAPI(payload) {
-	return axios.post('http://localhost:4000/user', payload);
+	return axios.post('/user', payload);
 }
 function* signUp(action) {
 	try {
-		console.log(action);
 		const result = yield call(signUpAPI, action.payload);
 
 		yield put({
 			type: SIGN_UP_SUCCESS,
 		});
 	} catch (err) {
-		console.log(err);
-		// yield put({
-		// 	type: SIGN_UP_FAILURE,
-		// 	error: err.response.data,
-		// });
+		yield put({
+			type: SIGN_UP_FAILURE,
+			error: err.response.data,
+		});
 	}
 }
 

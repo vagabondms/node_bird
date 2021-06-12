@@ -9,11 +9,14 @@ const port = 4000;
 const postRouter = require("./routes/post");
 const postsRouter = require("./routes/posts");
 const userRouter = require("./routes/user");
+const passportConfig = require("./passport");
 
 db.sequelize
   .sync()
   .then(() => console.log("db 연결됨"))
   .catch(console.err);
+
+passportConfig();
 
 let corsOptions = {
   origin: "*",
