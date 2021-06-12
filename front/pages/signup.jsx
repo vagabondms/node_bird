@@ -91,6 +91,7 @@ const Signup = () => {
 						<label htmlFor="passwordCheck">비밀번호 체크</label>
 						<Input
 							name="passwordCheck"
+							type="password"
 							value={passwordCheck}
 							required
 							onChange={onChangePassword}
