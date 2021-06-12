@@ -104,6 +104,7 @@ const reducer = (state = initialState, action) =>
 				draft.logInDone = false;
 				break;
 			case LOG_IN_SUCCESS:
+				console.log(action.payload);
 				draft.logInLoading = false;
 				draft.me = dummyUser(action.data);
 				draft.logInDone = true;

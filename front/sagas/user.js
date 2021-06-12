@@ -52,13 +52,14 @@ function* unfollow(action) {
 	}
 }
 
-function logInAPI() {
-	return axios.post('/user/login');
+function logInAPI(payload) {
+	console.log(payload);
+	return axios.post('/user/login', payload);
 }
 
 function* logIn(action) {
 	try {
-		const result = yield call(logInAPI, action.data);
+		const result = yield call(logInAPI, action.payload);
 		yield put({ type: LOG_IN_SUCCESS, payload: result.data });
 	} catch (err) {
 		yield put({

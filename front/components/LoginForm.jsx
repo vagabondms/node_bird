@@ -27,7 +27,7 @@ const LoginForm = () => {
 
 	const onSubmitForm = useCallback(() => {
 		// 이렇게 되면 input이 바뀔 때를 제외하고 나머지를
-		dispatch(logInRequestAction({ id: inputs.email, password: inputs.password }));
+		dispatch(logInRequestAction({ email: inputs.email, password: inputs.password }));
 	}, [inputs, dispatch]);
 
 	return (
