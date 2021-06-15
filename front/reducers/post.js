@@ -76,26 +76,6 @@ export const addCommentRequest = payload => ({
 	payload,
 });
 
-const dummyPost = payload => ({
-	id: payload.id,
-	content: payload.content,
-	User: {
-		id: 1,
-		nickname: '김민석',
-	},
-	Images: [],
-	Comments: [],
-});
-
-const dummyComment = payload => ({
-	id: shortId.generate(),
-	content: payload,
-	User: {
-		id: 1,
-		nickname: '김민석',
-	},
-});
-
 const reducer = (state = initialState, action) =>
 	produce(state, draft => {
 		switch (action.type) {
@@ -114,7 +94,7 @@ const reducer = (state = initialState, action) =>
 
 			case LOAD_POSTS_FAILURE:
 				draft.loadPostLading = false;
-				draft.loadPostError = action.error;
+				draft.loadPostError = action.payload;
 				break;
 
 			case ADD_POST_REQUEST:
@@ -126,12 +106,12 @@ const reducer = (state = initialState, action) =>
 			case ADD_POST_SUCCESS:
 				draft.addPostLoading = false;
 				draft.addPostDone = true;
-				draft.mainPosts.unshift(dummyPost(action.payload));
+				draft.mainPosts.unshift(action.payload);
 				break;
 
 			case ADD_POST_FAILURE:
 				draft.addPostLoading = false;
-				draft.addPostError = action.error;
+				draft.addPostError = action.payload;
 				break;
 
 			case REMOVE_POST_REQUEST:
@@ -148,7 +128,7 @@ const reducer = (state = initialState, action) =>
 
 			case REMOVE_POST_FAILURE:
 				draft.removePostLoading = false;
-				draft.removePostError = action.error;
+				draft.removePostError = action.payload;
 				break;
 
 			case ADD_COMMENT_REQUEST:
@@ -158,9 +138,9 @@ const reducer = (state = initialState, action) =>
 				break;
 
 			case ADD_COMMENT_SUCCESS: {
-				const { content, postId } = action.payload;
-				const post = draft.mainPosts.find(v => v.id === postId);
-				post.Comments.unshift(dummyComment(content));
+				const { content, PostId } = action.payload;
+				const post = draft.mainPosts.find(v => v.id === PostId);
+				post.Comments.unshift(content);
 				draft.addCommentLoading = false;
 				draft.addCommentDone = true;
 				break;
@@ -168,7 +148,7 @@ const reducer = (state = initialState, action) =>
 
 			case ADD_COMMENT_FAILURE:
 				draft.addCommentLoading = false;
-				draft.addCommentError = action.error;
+				draft.addCommentError = action.payload;
 				break;
 
 			default:

@@ -19,19 +19,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   Post.init(
     {
-      // id가 기본적으로 들어있다.
-      email: {
-        type: DataTypes.STRING(30), // STRING, TEXT, BOOLEAN, INTEGER, FLOAT, DATETIME
-        allowNull: false, // 필수
-        unique: true, // 고유한 값
-      },
-      nickname: {
-        type: DataTypes.STRING(30),
-        allowNull: false, // 필수
-      },
-      password: {
-        type: DataTypes.STRING(100),
-        allowNull: false, // 필수
+      content: {
+        type: DataTypes.TEXT,
+        allowNull: false,
       },
     },
     {

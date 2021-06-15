@@ -17,14 +17,15 @@ const userRouter = require("./routes/user");
 const passportConfig = require("./passport");
 
 db.sequelize
-  .sync()
+  .sync({ alter: true })
   .then(() => console.log("db 연결됨"))
   .catch(console.err);
 
 passportConfig();
 
 const corsOptions = {
-  origin: "*",
+  origin: "http://localhost:3000",
+  credentials: true,
 };
 
 app.use(cors(corsOptions));

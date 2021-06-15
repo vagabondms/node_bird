@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Link from 'next/link';
@@ -23,8 +23,13 @@ const LoginForm = () => {
 	});
 
 	const dispatch = useDispatch();
-	const { logInLoading } = useSelector(state => state.user);
+	const { logInLoading, logInError } = useSelector(state => state.user);
 
+	useEffect(() => {
+		if (logInError) {
+			alert(logInError);
+		}
+	}, [logInError]);
 	const onSubmitForm = useCallback(() => {
 		// 이렇게 되면 input이 바뀔 때를 제외하고 나머지를
 		dispatch(logInRequestAction({ email: inputs.email, password: inputs.password }));
