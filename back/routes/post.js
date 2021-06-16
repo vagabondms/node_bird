@@ -43,12 +43,17 @@ router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
     if (!post) {
       return res.status(403).send("존재하지 않는 게시글입니다");
     }
-    const comment = await Comment.create({
+    const { id } = await Comment.create({
       content: req.body.content,
       PostId: req.params.postId,
       UserId: req.user.id, // 로그인 된 상태기 때문에,
     });
-    return res.status(201).json(comment);
+    const commentWithUser = await Comment.findOne({
+      where: { id },
+      include: [{ model: User, attributes: ["id", "nickname"] }],
+    });
+
+    return res.status(201).json(commentWithUser);
   } catch (err) {
     console.error(error);
     next(error);
