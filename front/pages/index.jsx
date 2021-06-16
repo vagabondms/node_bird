@@ -5,12 +5,19 @@ import PostCard from '../components/PostCard';
 import AppLayout from '../components/AppLayout';
 
 import { LOAD_POSTS_REQUEST } from '../reducers/post';
+import { LOAD_MY_INFO_REQUEST } from '../reducers/user';
 
 const Home = () => {
 	const dispatch = useDispatch();
 	const { me } = useSelector(state => state.user);
 	const { mainPosts, hasMorePosts, loadPostLoading } = useSelector(state => state.post);
 	// const timer = useRef();
+
+	useEffect(() => {
+		dispatch({
+			type: LOAD_MY_INFO_REQUEST,
+		});
+	}, []);
 
 	useEffect(() => {
 		dispatch({
