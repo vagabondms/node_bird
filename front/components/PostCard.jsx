@@ -15,18 +15,21 @@ import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
 import FollowButton from './FollowButton';
 
-import { removePostRequest } from '../reducers/post';
+import { removePostRequest, LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '../reducers/post';
 
 function PostCard({ post }) {
-	const [liked, setLiked] = useState(false);
 	const [commentFormOpened, setCommentFormOpened] = useState(false);
 
 	const dispatch = useDispatch();
 	const id = useSelector(state => state.user.me?.id);
 	const { removePostLoading } = useSelector(state => state.post.removePostLoading);
-	const onClickHeart = useCallback(() => {
-		setLiked(state => !state);
-	}, [setLiked]);
+
+	const onLike = useCallback(() => {
+		dispatch({ type: LIKE_POST_REQUEST, payload: post.id });
+	}, []);
+	const onUnlike = useCallback(() => {
+		dispatch({ type: UNLIKE_POST_REQUEST, payload: post.id });
+	}, []);
 
 	const onClickComment = useCallback(() => {
 		setCommentFormOpened(state => !state);
@@ -42,10 +45,10 @@ function PostCard({ post }) {
 				cover={post.Images[0] && <PostImages images={post.Images} />}
 				actions={[
 					<RetweetOutlined key="retweet" />,
-					liked ? (
-						<HeartTwoTone twoToneColor="#eb2f96" key="heart" onClick={onClickHeart} />
+					post.Likers.find(el => el.id === id) ? (
+						<HeartTwoTone twoToneColor="#eb2f96" key="heart" onClick={onUnlike} />
 					) : (
-						<HeartOutlined key="heart" onClick={onClickHeart} />
+						<HeartOutlined key="heart" onClick={onLike} />
 					),
 					<MessageOutlined key="comment" onClick={onClickComment} />,
 					<Popover
@@ -106,9 +109,10 @@ PostCard.propTypes = {
 		id: PropTypes.number,
 		User: PropTypes.object,
 		content: PropTypes.string,
-		createdAt: PropTypes.object,
+		createdAt: PropTypes.string,
 		Comments: PropTypes.arrayOf(PropTypes.object),
 		Images: PropTypes.arrayOf(PropTypes.object),
+		Likers: PropTypes.array,
 	}).isRequired,
 };
 

@@ -4,6 +4,12 @@ const initialState = {
 	mainPosts: [],
 	imagePaths: [],
 	hasMorePosts: true, // 남은 데이터가 있는 지 확인
+	likePostLoading: false,
+	likePostDone: false,
+	likePostError: null,
+	unlikePostLoading: false,
+	unlikePostDone: false,
+	unlikePostError: null,
 	loadPostLoading: false,
 	loadPostDone: false,
 	loadPostError: null,
@@ -17,6 +23,13 @@ const initialState = {
 	removePostDone: false,
 	removePostError: null,
 };
+export const LIKE_POST_REQUEST = 'LIKE_POST_REQUEST';
+export const LIKE_POST_SUCCESS = 'LIKE_POST_SUCCESS';
+export const LIKE_POST_FAILURE = 'LIKE_POST_FAILURE';
+
+export const UNLIKE_POST_REQUEST = 'UNLIKE_POST_REQUEST';
+export const UNLIKE_POST_SUCCESS = 'UNLIKE_POST_SUCCESS';
+export const UNLIKE_POST_FAILURE = 'UNLIKE_POST_FAILURE';
 
 export const LOAD_POSTS_REQUEST = 'LOAD_POSTS_REQUEST';
 export const LOAD_POSTS_SUCCESS = 'LOAD_POSTS_SUCCESS';
@@ -51,6 +64,44 @@ export const addCommentRequest = payload => ({
 const reducer = (state = initialState, action) =>
 	produce(state, draft => {
 		switch (action.type) {
+			case LIKE_POST_REQUEST:
+				draft.likePostLoading = true;
+				draft.likePostDone = false;
+				draft.likePostError = null;
+				break;
+
+			case LIKE_POST_SUCCESS: {
+				draft.likePostLoading = false;
+				draft.likePostDone = true;
+				const post = draft.mainPosts.find(el => el.id === action.payload.PostId);
+				post.Likers.push({ id: action.payload.UserId });
+				break;
+			}
+
+			case LIKE_POST_FAILURE:
+				draft.likePostLading = false;
+				draft.likePostError = action.payload;
+				break;
+
+			case UNLIKE_POST_REQUEST:
+				draft.unlikePostLoading = true;
+				draft.unlikePostDone = false;
+				draft.unlikePostError = null;
+				break;
+
+			case UNLIKE_POST_SUCCESS: {
+				draft.unlikePostLoading = false;
+				draft.unlikePostDone = true;
+				const post = draft.mainPosts.find(el => el.id === action.payload.PostId);
+				post.Likers = post.Likers.filter(el => el.id !== action.payload.UserId);
+				break;
+			}
+
+			case UNLIKE_POST_FAILURE:
+				draft.unlikePostLading = false;
+				draft.unlikePostError = action.payload;
+				break;
+
 			case LOAD_POSTS_REQUEST:
 				draft.loadPostLoading = true;
 				draft.loadPostDone = false;

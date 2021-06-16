@@ -2,6 +2,12 @@ import { all, fork, takeLatest, put, delay, throttle, call } from 'redux-saga/ef
 import axios from 'axios';
 
 import {
+	LIKE_POST_REQUEST,
+	LIKE_POST_FAILURE,
+	LIKE_POST_SUCCESS,
+	UNLIKE_POST_REQUEST,
+	UNLIKE_POST_SUCCESS,
+	UNLIKE_POST_FAILURE,
 	LOAD_POSTS_REQUEST,
 	LOAD_POSTS_SUCCESS,
 	LOAD_POSTS_FAILURE,
@@ -17,6 +23,44 @@ import {
 } from '../reducers/post';
 
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from '../reducers/user';
+
+function likePostAPI(payload) {
+	return axios.patch(`/post/${payload}/like`, payload);
+}
+
+function* likePost(action) {
+	try {
+		const result = yield call(likePostAPI, action.payload);
+		yield put({
+			type: LIKE_POST_SUCCESS,
+			payload: result.data,
+		});
+	} catch (err) {
+		console.error(err);
+		yield put({
+			type: LIKE_POST_FAILURE,
+		});
+	}
+}
+
+function unlikePostAPI(payload) {
+	return axios.delete(`/post/${payload}/like`);
+}
+
+function* unlikePost(action) {
+	try {
+		const result = yield call(unlikePostAPI, action.payload);
+		yield put({
+			type: UNLIKE_POST_SUCCESS,
+			payload: result.data,
+		});
+	} catch (err) {
+		console.error(err);
+		yield put({
+			type: UNLIKE_POST_FAILURE,
+		});
+	}
+}
 
 function loadPostsAPI(payload) {
 	return axios.post('/posts', payload);
@@ -98,7 +142,14 @@ function* addComment(action) {
 	}
 }
 
-function* loadPostsRequest() {
+function* watchLikePost() {
+	yield takeLatest(LIKE_POST_REQUEST, likePost);
+}
+function* watchUnlikePost() {
+	yield takeLatest(UNLIKE_POST_REQUEST, unlikePost);
+}
+
+function* watchLoadPostsRequest() {
 	yield throttle(500, LOAD_POSTS_REQUEST, loadPosts);
 }
 
@@ -116,7 +167,9 @@ function* watchRemovePost() {
 
 export default function* postSaga() {
 	yield all([
-		fork(loadPostsRequest),
+		fork(watchLikePost),
+		fork(watchUnlikePost),
+		fork(watchLoadPostsRequest),
 		fork(watchAddPost),
 		fork(watchAddComment),
 		fork(watchRemovePost),

@@ -22,8 +22,10 @@ router.post("/", async (req, res, next) => {
           model: Comment,
           include: { model: User, attributes: ["id", "nickname"] },
         },
+        { model: User, as: "Likers", attributes: ["id"] },
       ],
     });
+    console.log(posts);
     res.status(200).json(posts);
   } catch (error) {
     console.error(error);

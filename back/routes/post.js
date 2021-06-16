@@ -60,6 +60,46 @@ router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
   }
 });
 
+router.patch("/:postId/like", async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+    });
+
+    if (!post) {
+      res.status(403).send("게시글이 존재하지 않습니다.");
+      return;
+    } else {
+      post.addLikers(req.user.id);
+      res.status(200).json({ PostId: post.id, UserId: req.user.id });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+    return;
+  }
+});
+
+router.delete("/:postId/like", async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+    });
+    if (!post) {
+      res.status(403).send("게시글이 존재하지 않습니다.");
+      return;
+    } else {
+      post.removeLikers(req.user.id);
+      res.status(200).json({ PostId: post.id, UserId: req.user.id });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 router.delete("/", isLoggedIn, (req, res) => {
   res.json({ id: 1 });
 });
