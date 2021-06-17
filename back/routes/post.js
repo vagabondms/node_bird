@@ -13,7 +13,7 @@ router.post("/", isLoggedIn, async (req, res, next) => {
     });
     const post = await Post.findOne({
       where: { id },
-      attributes: { exclude: ["createdAt", "updateAt", "UserId"] },
+      attributes: { exclude: ["createdAt", "updateAt"] },
       include: [
         {
           model: Image,
@@ -24,9 +24,10 @@ router.post("/", isLoggedIn, async (req, res, next) => {
         {
           model: Comment,
         },
+        { model: User, as: "Likers", attributes: ["id"] },
       ],
     });
-    console.log(post);
+
     return res.status(201).json(post);
   } catch (err) {
     console.log(err);
@@ -60,7 +61,7 @@ router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.patch("/:postId/like", async (req, res, next) => {
+router.patch("/:postId/like", isLoggedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({
       where: { id: req.params.postId },
@@ -81,7 +82,7 @@ router.patch("/:postId/like", async (req, res, next) => {
   }
 });
 
-router.delete("/:postId/like", async (req, res, next) => {
+router.delete("/:postId/like", isLoggedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({
       where: { id: req.params.postId },
@@ -100,8 +101,16 @@ router.delete("/:postId/like", async (req, res, next) => {
   }
 });
 
-router.delete("/", isLoggedIn, (req, res) => {
-  res.json({ id: 1 });
+router.delete("/:postId", isLoggedIn, async (req, res) => {
+  try {
+    await Post.destroy({
+      where: { id: req.params.postId, UserId: req.user.id },
+    });
+    res.status(200).send({ PostId: Number(req.params.postId) });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
 module.exports = router;

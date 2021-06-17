@@ -36,7 +36,7 @@ function PostCard({ post }) {
 	}, [setCommentFormOpened]);
 
 	const onClickDelete = useCallback(() => {
-		dispatch(removePostRequest({ userId: id, postId: post.id }));
+		dispatch(removePostRequest({ postId: post.id }));
 	}, [dispatch, post, id]);
 
 	return (
@@ -71,7 +71,7 @@ function PostCard({ post }) {
 						<EllipsisOutlined />
 					</Popover>,
 				]}
-				extra={id && <FollowButton post={post} />}
+				extra={id && post.UserId !== id && <FollowButton post={post} />}
 			>
 				<Card.Meta
 					avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
@@ -98,8 +98,6 @@ function PostCard({ post }) {
 					/>
 				</div>
 			)}
-			{/* <CommentForm /> */}
-			{/* <Comments /> */}
 		</div>
 	);
 }
