@@ -1,18 +1,55 @@
 const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 const { Post, Image, User, Comment } = require("../models");
 const { isLoggedIn } = require("./middlewares");
 
 const router = express.Router();
 
-router.post("/", isLoggedIn, async (req, res, next) => {
+try {
+  fs.accessSync("uploads");
+} catch (error) {
+  console.log("uploads 생성");
+  fs.mkdirSync("uploads");
+}
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination(req, file, done) {
+      done(null, "uploads");
+    },
+    filename(req, file, done) {
+      const ext = path.extname(file.originalname);
+      const basename = path.basename(file.originalname, ext);
+      done(null, basename + "_" + new Date().getTime() + ext);
+    },
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 },
+});
+
+router.post("/", isLoggedIn, upload.none(), async (req, res, next) => {
   try {
-    const { id } = await Post.create({
+    const post = await Post.create({
       content: req.body.content,
       UserId: req.user.id, // 로그인 된 상태기 때문에,
     });
-    const post = await Post.findOne({
-      where: { id },
+    if (req.body.image) {
+      let images;
+      if (Array.isArray(req.body.Image)) {
+        // Image가 여러개면 배열로 들어옴.
+        images = await Promise.all(
+          req.body.image.map((image) => Image.create({ src: image }))
+        );
+      } else {
+        images = await Image.create({ src: req.body.image });
+      }
+      await post.addImages(images);
+    }
+
+    const fullPost = await Post.findOne({
+      where: { id: post.id },
       attributes: { exclude: ["createdAt", "updateAt"] },
       include: [
         {
@@ -28,7 +65,7 @@ router.post("/", isLoggedIn, async (req, res, next) => {
       ],
     });
 
-    return res.status(201).json(post);
+    return res.status(201).json(fullPost);
   } catch (err) {
     console.log(err);
     return next(err);
@@ -112,5 +149,20 @@ router.delete("/:postId", isLoggedIn, async (req, res) => {
     next(error);
   }
 });
+
+router.post(
+  "/images",
+  isLoggedIn,
+  upload.array("image"), // upload까지 진행되면 req.files에 업로드된 파일들의 정보가 들어있다.
+  async (req, res, next) => {
+    try {
+      console.log(req.files);
+      res.json(req.files.map((el) => el.filename));
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  }
+);
 
 module.exports = router;

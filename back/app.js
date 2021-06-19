@@ -7,6 +7,7 @@ const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const cookieParser = require("cookie-parser");
+const path = require("path");
 
 const app = express();
 const port = 4000;
@@ -17,7 +18,8 @@ const userRouter = require("./routes/user");
 const passportConfig = require("./passport");
 
 db.sequelize
-  .sync({ alter: true })
+  .sync()
+  // .sync({ alter: true })
   .then(() => console.log("db 연결됨"))
   .catch(console.err);
 
@@ -45,6 +47,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use("/", express.static(path.join(__dirname, "uploads")));
 app.use("/posts", postsRouter);
 app.use("/post", postRouter);
 app.use("/user", userRouter);

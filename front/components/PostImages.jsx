@@ -12,7 +12,7 @@ const PostImages = ({ images }) => {
 	const onClose = useCallback(() => {
 		setShowImagesZoom(false);
 	}, [setShowImagesZoom]);
-
+	images = images.map(el => ({ ...el, src: `http://localhost:4000/${el.src}` }));
 	if (images.length === 1) {
 		return (
 			<>

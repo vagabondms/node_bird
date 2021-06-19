@@ -2,6 +2,9 @@ import { all, fork, takeLatest, put, throttle, call } from 'redux-saga/effects';
 import axios from 'axios';
 
 import {
+	UPLOAD_IMAGES_REQUEST,
+	UPLOAD_IMAGES_FAILURE,
+	UPLOAD_IMAGES_SUCCESS,
 	LIKE_POST_REQUEST,
 	LIKE_POST_FAILURE,
 	LIKE_POST_SUCCESS,
@@ -23,6 +26,25 @@ import {
 } from '../reducers/post';
 
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from '../reducers/user';
+
+function uploadImagesAPI(payload) {
+	return axios.post(`/post/images`, payload); // formData는 그대로 넣어줘야함.
+}
+
+function* uploadImages(action) {
+	try {
+		const result = yield call(uploadImagesAPI, action.payload);
+		yield put({
+			type: UPLOAD_IMAGES_SUCCESS,
+			payload: result.data,
+		});
+	} catch (err) {
+		yield put({
+			type: UPLOAD_IMAGES_FAILURE,
+			payload: err.response.payload,
+		});
+	}
+}
 
 function likePostAPI(payload) {
 	return axios.patch(`/post/${payload}/like`, payload);
@@ -81,7 +103,7 @@ function* loadPosts(action) {
 }
 
 function addPostAPI(payload) {
-	return axios.post('/post', { content: payload });
+	return axios.post('/post', payload);
 }
 
 function* addPost(action) {
@@ -145,6 +167,10 @@ function* addComment(action) {
 	}
 }
 
+function* watchUploadImages() {
+	yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
+}
+
 function* watchLikePost() {
 	yield takeLatest(LIKE_POST_REQUEST, likePost);
 }
@@ -170,6 +196,7 @@ function* watchRemovePost() {
 
 export default function* postSaga() {
 	yield all([
+		fork(watchUploadImages),
 		fork(watchLikePost),
 		fork(watchUnlikePost),
 		fork(watchLoadPostsRequest),

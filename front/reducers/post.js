@@ -22,7 +22,17 @@ const initialState = {
 	removePostLoading: false,
 	removePostDone: false,
 	removePostError: null,
+	uploadImagesLoading: false,
+	uploadImagesDone: false,
+	uploadImagesError: null,
 };
+
+export const REMOVE_IMAGE = 'REMOVE_IMAGE';
+
+export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
+export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
+export const UPLOAD_IMAGES_FAILURE = 'UPLOAD_IMAGES_FAILURE';
+
 export const LIKE_POST_REQUEST = 'LIKE_POST_REQUEST';
 export const LIKE_POST_SUCCESS = 'LIKE_POST_SUCCESS';
 export const LIKE_POST_FAILURE = 'LIKE_POST_FAILURE';
@@ -64,6 +74,28 @@ export const addCommentRequest = payload => ({
 const reducer = (state = initialState, action) =>
 	produce(state, draft => {
 		switch (action.type) {
+			case REMOVE_IMAGE:
+				draft.imagePaths.splice(action.payload, 1);
+				break;
+
+			case UPLOAD_IMAGES_REQUEST:
+				draft.uploadImagesLoading = true;
+				draft.uploadImagesDone = false;
+				draft.uploadImagesError = null;
+				break;
+
+			case UPLOAD_IMAGES_SUCCESS: {
+				draft.uploadImagesLoading = false;
+				draft.uploadImagesDone = true;
+				draft.imagePaths = action.payload;
+				break;
+			}
+
+			case UPLOAD_IMAGES_FAILURE:
+				draft.uploadImagesLading = false;
+				draft.uploadImagesError = action.payload;
+				break;
+
 			case LIKE_POST_REQUEST:
 				draft.likePostLoading = true;
 				draft.likePostDone = false;
@@ -130,6 +162,7 @@ const reducer = (state = initialState, action) =>
 				draft.addPostLoading = false;
 				draft.addPostDone = true;
 				draft.mainPosts.unshift(action.payload);
+				draft.imagePaths = [];
 				break;
 
 			case ADD_POST_FAILURE:
