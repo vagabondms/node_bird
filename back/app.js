@@ -19,7 +19,7 @@ const passportConfig = require("./passport");
 
 db.sequelize
   .sync()
-  // .sync({ alter: true })
+  // .sync({ force: true })
   .then(() => console.log("db 연결됨"))
   .catch(console.err);
 

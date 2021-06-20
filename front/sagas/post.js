@@ -23,9 +23,31 @@ import {
 	ADD_COMMENT_REQUEST,
 	ADD_COMMENT_SUCCESS,
 	ADD_COMMENT_FAILURE,
+	RETWEET_REQUEST,
+	RETWEET_FAILURE,
+	RETWEET_SUCCESS,
 } from '../reducers/post';
 
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from '../reducers/user';
+
+function retweetRequestAPI(payload) {
+	return axios.post(`/post/${payload}/retweet`); // formData는 그대로 넣어줘야함.
+}
+
+function* retweetRequest(action) {
+	try {
+		const result = yield call(retweetRequestAPI, action.payload);
+		yield put({
+			type: RETWEET_SUCCESS,
+			payload: result.data,
+		});
+	} catch (err) {
+		yield put({
+			type: RETWEET_FAILURE,
+			payload: err.response.data,
+		});
+	}
+}
 
 function uploadImagesAPI(payload) {
 	return axios.post(`/post/images`, payload); // formData는 그대로 넣어줘야함.
@@ -84,13 +106,13 @@ function* unlikePost(action) {
 	}
 }
 
-function loadPostsAPI(payload) {
-	return axios.post('/posts', payload);
+function loadPostsAPI(lastId) {
+	return axios.get(`/posts?lastId=${lastId || 0}`);
 }
 
 function* loadPosts(action) {
 	try {
-		const result = yield call(loadPostsAPI, action.payload);
+		const result = yield call(loadPostsAPI, action.lastId);
 		yield put({
 			type: LOAD_POSTS_SUCCESS,
 			payload: result.data,
@@ -167,6 +189,9 @@ function* addComment(action) {
 	}
 }
 
+function* watchRetweetRequest() {
+	yield takeLatest(RETWEET_REQUEST, retweetRequest);
+}
 function* watchUploadImages() {
 	yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
 }
@@ -196,6 +221,7 @@ function* watchRemovePost() {
 
 export default function* postSaga() {
 	yield all([
+		fork(watchRetweetRequest),
 		fork(watchUploadImages),
 		fork(watchLikePost),
 		fork(watchUnlikePost),

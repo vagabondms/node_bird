@@ -10,8 +10,15 @@ import { LOAD_MY_INFO_REQUEST } from '../reducers/user';
 const Home = () => {
 	const dispatch = useDispatch();
 	const { me } = useSelector(state => state.user);
-	const { mainPosts, hasMorePosts, loadPostLoading } = useSelector(state => state.post);
-	// const timer = useRef();
+	const { mainPosts, hasMorePosts, loadPostLoading, retweetError } = useSelector(
+		state => state.post,
+	);
+
+	useEffect(() => {
+		if (retweetError) {
+			alert(retweetError);
+		}
+	}, [retweetError]);
 
 	useEffect(() => {
 		dispatch({
@@ -40,8 +47,10 @@ const Home = () => {
 				window.pageYOffset + document.documentElement.clientHeight
 			) {
 				if (hasMorePosts && !loadPostLoading) {
+					const lastId = mainPosts[mainPosts.length - 1]?.id;
 					dispatch({
 						type: LOAD_POSTS_REQUEST,
+						lastId,
 					});
 				}
 			}
@@ -50,7 +59,7 @@ const Home = () => {
 		return () => {
 			window.removeEventListener('scroll', onScroll);
 		};
-	}, [hasMorePosts, loadPostLoading]);
+	}, [hasMorePosts, loadPostLoading, mainPosts]);
 
 	return (
 		<AppLayout>

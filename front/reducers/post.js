@@ -4,6 +4,9 @@ const initialState = {
 	mainPosts: [],
 	imagePaths: [],
 	hasMorePosts: true, // 남은 데이터가 있는 지 확인
+	retweetLoading: false,
+	retweetDone: false,
+	retweetError: null,
 	likePostLoading: false,
 	likePostDone: false,
 	likePostError: null,
@@ -28,6 +31,10 @@ const initialState = {
 };
 
 export const REMOVE_IMAGE = 'REMOVE_IMAGE';
+
+export const RETWEET_REQUEST = 'RETWEET_REQUEST';
+export const RETWEET_SUCCESS = 'RETWEET_SUCCESS';
+export const RETWEET_FAILURE = 'RETWEET_FAILURE';
 
 export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
 export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
@@ -78,6 +85,24 @@ const reducer = (state = initialState, action) =>
 				draft.imagePaths.splice(action.payload, 1);
 				break;
 
+			case RETWEET_REQUEST:
+				draft.retweetLoading = true;
+				draft.retweetDone = false;
+				draft.retweetError = null;
+				break;
+
+			case RETWEET_SUCCESS: {
+				draft.retweetLoading = false;
+				draft.retweetDone = true;
+				draft.mainPosts.unshift(action.payload);
+				break;
+			}
+
+			case RETWEET_FAILURE:
+				draft.retweetLoading = false;
+				draft.retweetError = action.payload;
+				break;
+
 			case UPLOAD_IMAGES_REQUEST:
 				draft.uploadImagesLoading = true;
 				draft.uploadImagesDone = false;
@@ -92,7 +117,7 @@ const reducer = (state = initialState, action) =>
 			}
 
 			case UPLOAD_IMAGES_FAILURE:
-				draft.uploadImagesLading = false;
+				draft.uploadImagesLoading = false;
 				draft.uploadImagesError = action.payload;
 				break;
 
@@ -111,7 +136,7 @@ const reducer = (state = initialState, action) =>
 			}
 
 			case LIKE_POST_FAILURE:
-				draft.likePostLading = false;
+				draft.likePostLoading = false;
 				draft.likePostError = action.payload;
 				break;
 
@@ -130,7 +155,7 @@ const reducer = (state = initialState, action) =>
 			}
 
 			case UNLIKE_POST_FAILURE:
-				draft.unlikePostLading = false;
+				draft.unlikePostLoading = false;
 				draft.unlikePostError = action.payload;
 				break;
 
@@ -143,12 +168,12 @@ const reducer = (state = initialState, action) =>
 			case LOAD_POSTS_SUCCESS:
 				draft.loadPostLoading = false;
 				draft.loadPostDone = true;
-				draft.mainPosts = action.payload.concat(draft.mainPosts);
+				draft.mainPosts = draft.mainPosts.concat(action.payload);
 				draft.hasMorePosts = draft.mainPosts.length < 50;
 				break;
 
 			case LOAD_POSTS_FAILURE:
-				draft.loadPostLading = false;
+				draft.loadPostLoading = false;
 				draft.loadPostError = action.payload;
 				break;
 
@@ -177,7 +202,6 @@ const reducer = (state = initialState, action) =>
 				break;
 
 			case REMOVE_POST_SUCCESS:
-				console.log(action.payload);
 				draft.mainPosts = state.mainPosts.filter(el => el.id !== action.payload.PostId);
 				draft.removePostLoading = false;
 				draft.removePostDone = true;
