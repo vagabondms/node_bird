@@ -4,10 +4,14 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { Form, Input, Checkbox, Button } from 'antd';
 import styled from 'styled-components';
+import { END } from 'redux-saga';
+import axios from 'axios';
+import wrapper from '../store/configureStore';
 
 import AppLayout from '../components/AppLayout';
 import useInput from '../hooks/useInput';
-import { SIGN_UP_REQUEST } from '../reducers/user';
+import { SIGN_UP_REQUEST, LOAD_MY_INFO_REQUEST } from '../reducers/user';
+import { LOAD_POSTS_REQUEST } from '../reducers/post';
 
 const ErrorMessage = styled.div`
 	color: red;
@@ -130,5 +134,21 @@ const Signup = () => {
 		</>
 	);
 };
+
+export const getServerSideProps = wrapper.getServerSideProps(store => async ({ req }) => {
+	const cookie = req?.headers.cookie;
+	axios.defaults.headers.Cookie = ''; // 요청이 들어올 때마다 초기화 시켜주는 것이다. 여기는 클라이언트 서버에서 실행되므로 이전 요청이 남아있을 수 있기 때문이다
+	if (req && cookie) {
+		axios.defaults.headers.Cookie = cookie;
+	}
+	store.dispatch({
+		type: LOAD_MY_INFO_REQUEST,
+	});
+	store.dispatch({
+		type: LOAD_POSTS_REQUEST,
+	});
+	store.dispatch(END);
+	await store.sagaTask.toPromise();
+});
 
 export default Signup;
