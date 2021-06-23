@@ -11,6 +11,9 @@ import {
 	UNLIKE_POST_REQUEST,
 	UNLIKE_POST_SUCCESS,
 	UNLIKE_POST_FAILURE,
+	LOAD_POST_REQUEST,
+	LOAD_POST_SUCCESS,
+	LOAD_POST_FAILURE,
 	LOAD_POSTS_REQUEST,
 	LOAD_POSTS_SUCCESS,
 	LOAD_POSTS_FAILURE,
@@ -118,8 +121,28 @@ function* loadPosts(action) {
 			payload: result.data,
 		});
 	} catch (err) {
+		console.log(err);
 		yield put({
 			type: LOAD_POSTS_FAILURE,
+			// payload:
+		});
+	}
+}
+
+function loadPostAPI(id) {
+	return axios.get(`/post/${id}`);
+}
+
+function* loadPost(action) {
+	try {
+		const result = yield call(loadPostAPI, action.id);
+		yield put({
+			type: LOAD_POST_SUCCESS,
+			payload: result.data,
+		});
+	} catch (err) {
+		yield put({
+			type: LOAD_POST_FAILURE,
 		});
 	}
 }
@@ -207,6 +230,10 @@ function* watchLoadPostsRequest() {
 	yield throttle(500, LOAD_POSTS_REQUEST, loadPosts);
 }
 
+function* watchLoadPost() {
+	yield takeLatest(LOAD_POST_REQUEST, loadPost);
+}
+
 function* watchAddPost() {
 	yield takeLatest(ADD_POST_REQUEST, addPost);
 }
@@ -226,6 +253,7 @@ export default function* postSaga() {
 		fork(watchLikePost),
 		fork(watchUnlikePost),
 		fork(watchLoadPostsRequest),
+		fork(watchLoadPost),
 		fork(watchAddPost),
 		fork(watchAddComment),
 		fork(watchRemovePost),

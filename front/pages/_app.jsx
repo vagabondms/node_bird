@@ -9,6 +9,7 @@ const MyApp = ({ Component }) => (
 	<>
 		<Head>
 			<title>NodeBird</title>
+			<link rel="icon" href="https://nodebird.com/favicon.ico" />
 		</Head>
 		<Component />
 	</>

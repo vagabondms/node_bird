@@ -18,6 +18,9 @@ const Home = () => {
 		state => state.post,
 	);
 
+	// useEffect(() => {
+	// 	dispatch({ type: LOAD_POSTS_REQUEST });
+	// }, []);
 	useEffect(() => {
 		if (retweetError) {
 			alert(retweetError);
@@ -65,6 +68,7 @@ const Home = () => {
 
 export const getServerSideProps = wrapper.getServerSideProps(store => async ({ req }) => {
 	const cookie = req?.headers.cookie;
+
 	axios.defaults.headers.Cookie = ''; // 요청이 들어올 때마다 초기화 시켜주는 것이다. 여기는 클라이언트 서버에서 실행되므로 이전 요청이 남아있을 수 있기 때문이다
 	if (req && cookie) {
 		axios.defaults.headers.Cookie = cookie;

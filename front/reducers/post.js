@@ -2,6 +2,7 @@ import produce from 'immer';
 
 const initialState = {
 	mainPosts: [],
+	singlePost: null,
 	imagePaths: [],
 	hasMorePosts: true, // 남은 데이터가 있는 지 확인
 	retweetLoading: false,
@@ -16,6 +17,9 @@ const initialState = {
 	loadPostLoading: false,
 	loadPostDone: false,
 	loadPostError: null,
+	loadPostsLoading: false,
+	loadPostsDone: false,
+	loadPostsError: null,
 	addPostLoading: false,
 	addPostDone: false,
 	addPostError: null,
@@ -51,6 +55,10 @@ export const UNLIKE_POST_FAILURE = 'UNLIKE_POST_FAILURE';
 export const LOAD_POSTS_REQUEST = 'LOAD_POSTS_REQUEST';
 export const LOAD_POSTS_SUCCESS = 'LOAD_POSTS_SUCCESS';
 export const LOAD_POSTS_FAILURE = 'LOAD_POSTS_FAILURE';
+
+export const LOAD_POST_REQUEST = 'LOAD_POST_REQUEST';
+export const LOAD_POST_SUCCESS = 'LOAD_POST_SUCCESS';
+export const LOAD_POST_FAILURE = 'LOAD_POST_FAILURE';
 
 export const ADD_POST_REQUEST = 'ADD_POST_REQUEST';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
@@ -160,21 +168,38 @@ const reducer = (state = initialState, action) =>
 				break;
 
 			case LOAD_POSTS_REQUEST:
-				draft.loadPostLoading = true;
-				draft.loadPostDone = false;
-				draft.loadPostError = null;
+				draft.loadPostsLoading = true;
+				draft.loadPostsDone = false;
+				draft.loadPostsError = null;
 				break;
 
 			case LOAD_POSTS_SUCCESS:
-				draft.loadPostLoading = false;
-				draft.loadPostDone = true;
+				draft.loadPostsLoading = false;
+				draft.loadPostsDone = true;
 				draft.mainPosts = draft.mainPosts.concat(action.payload);
 				draft.hasMorePosts = draft.mainPosts.length < 50;
 				break;
 
 			case LOAD_POSTS_FAILURE:
+				draft.loadPostsLoading = false;
+				draft.loadPostsError = action.payload;
+				break;
+
+			case LOAD_POST_REQUEST:
+				draft.loadPostLoading = true;
+				draft.loadPostDone = false;
+				draft.loadPostError = null;
+				break;
+
+			case LOAD_POST_SUCCESS:
 				draft.loadPostLoading = false;
-				draft.loadPostError = action.payload;
+				draft.loadPostDone = true;
+				draft.singlePost = action.payload;
+				break;
+
+			case LOAD_POST_FAILURE:
+				draft.loadPostLoading = false;
+				draft.loadPostsError = action.payload;
 				break;
 
 			case ADD_POST_REQUEST:
